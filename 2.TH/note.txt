@@ -1,0 +1,86 @@
+******************TIMER:
+hal_tim_base_start_it ( &htim1/2/3, chanelnel1/2/3);
+Led sáng trong 5s  vs chu kì 5Hz, sau đó sáng trong chu kì 1Hz
+	__HAL_TIM_SET_PRESCALER(&htim1,499);
+	HAL_Delay(5000);
+	__HAL_TIM_SET_PRESCALER(&htim1,99);
+	HAL_Delay(5000);
+
+****************PWM:
+hal_tim_pwm_start( &htim1/2/3, chanelnel1/2/3);
+
+Muốn thay đổi Duty Cycles chúng ta gọi hàm đưa vào While(1)
+ __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1, 50);
+
+Thay đổi Ton:
+
+sConfigOC.Pulse = 200;
+
+Điều chế mức sáng của đèn Led qua nút nhấn Up, Down:
+	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0)==0)
+		{
+		i++;
+		HAL_Delay(200);
+			if(i>3)
+				i=3;
+		}
+		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_1)==0)
+		{
+		i--;
+		HAL_Delay(200);
+			if(i<0)
+				i=0;
+		}
+		if(i==3)
+			__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,7995);
+		if(i==2)
+			__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,6800);
+		if(i==1)
+			__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,5600);
+    if(i==0)
+			__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,4400);
+
+
+***********************ADC:
+Cấu hình phần cứng:
+Data Alignment: Right Align Căn chỉnh data bên phải. Vì thanh ghi dữ liệu là 16 bit, chuyển đổi là 12bit, thanh ghi này sẽ xác định dữ liệu sẽ được căn lề bên trái hoặc phải
+Scan Mode:Disable. Tắt chế độ quét(Chỉ sử dụng được khi sử dụng nhiều kênh)
+Continuous mode: Disable . Tắt chế độ làm việc liên tục sẽ là chế độ Single
+Rank: 1.Mức ưu tiên của kênh (sử dụng khi chuyển đổi nhiều kênh)
+Samping Time: 239.5 Cycles.Thời gian chuyển đổi tính theo chu kì ADC
+Lưu ý: Sampling time càng cao thì chuyển đổi càng chính xác
+
+Một số hàm liên quan đến ADC:
+
+– HAL_ADC_Start(ADC_HandleTypeDef* hadc): cho phép ADC bắt đầu chuyển đổi
+– HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout): polling chờ cho chuyển đổi hoàn tất với thời gian timeout.
+– HAL_ADC_GetValue(ADC_HandleTypeDef* hadc): trả về giá trị adc của con trỏ hadc.
+– HAL_ADC_Stop(ADC_HandleTypeDef* hadc): stop chuyển đổi adc.
+VD:
+uint32_t ADC_VAL;
+while(1)
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    ADC_VAL = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    HAL_Delay(100);
+
+************UART:
+
+Truyền dữ liệu:
+unisigned char data_rx[1];
+unisigned char M[]= " Trinh Dang Nam";
+int main()
+HAL_UART_Transmit(&huart1,M,32,100);
+
+Nhận dữ liệu số 1 thì đèn sáng:
+while(1)
+HAL_UART_Receive(&huart1,data_rx,1,100);
+if(data_rx[0]=='1')
+{
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+}
+else
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+}
+
