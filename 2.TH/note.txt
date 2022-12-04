@@ -84,3 +84,12 @@ else
 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 }
 
+************HC05
+https://www.youtube.com/watch?v=RPU2wzfewY8&t=257s
+
+************joystick
+https://www.youtube.com/watch?v=NEUtfDNfIKk&t=125s
+
+************dht11
+https://www.micropeta.com/video39
+
