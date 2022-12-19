@@ -1,0 +1,63 @@
+#######Bài tập
+Sử dụng 2 kit STM32F103, 1 nút nhấn và 1 đèn led. Nút nhấn nối với chip STM32 thứ nhất, led nối với STM32 thứ 2. Viết chương trình để điều khiển trạng thái bật tắt của led bằng nút nhấn sử dụng giao tiếp SPI.
+
+*******
+Hàm truyền SPI: 
+
+HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+Tham số: 
+  · hspi: Con trỏ tới cấu trúc khởi tạo cho bộ SPI, ví dụ nếu cấu hình SPI1 thì là &hspi1.
+  · pData: Dữ liệu muốn gửi đi 
+  · Size: Kích thước dữ liệu gửi đi
+  · Timeout: Thời gian chờ
+Ví dụ:Gửi byte 0x00 bằng SPI1, dữ liệu muốn gửi đi được lưu ở TX buffer (Xem sơ đồ khối ở đầu trag)
+  HAL_SPI_Transmit(&hspi1,0x00,1,1000);
+
+
+Hàm nhận SPI:
+
+HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+Tham số: 
+  · hspi: Con trỏ tới cấu trúc khởi tạo cho bộ SPI, ví dụ nếu cấu hình SPI1 thì là &hspi1.
+  · pData: Dữ liệu nhận về 
+  · Size: Kích thước dữ liệu nhận
+  · Timeout: Thời gian chờ
+Khi thực hiện lệnh Transmit, sau khi dữ liệu được gửi, đồng thời sẽ nhận lại dữ liệu và ghi vào thanh ghi RX buffer
+Ví dụ muốn kiểm tra dữ liệu SPI nhận được, mình khởi tạo 1 buffer và lưu giá trị mỗi lần nhận.
+  uint8_t rxBuffer;
+  HAL_SPI_Receive(&hspi1,rxBuffer,1,1000);
+
+
+Hàm truyền và nhận SPI
+
+Thay vì viết hàm Transmit và Receive riêng thì chúng ta có thể gộp chung vào 1 hàm. 
+
+HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size, uint32_t Timeout)
+Tham số: 
+  · hspi: Con trỏ tới cấu trúc khởi tạo cho bộ SPI, ví dụ nếu cấu hình SPI1 thì là &hspi1.
+  · pTxData: Dữ liệu gửi đi.
+  · pRxData: Dữ liệu nhận về.
+  · Size: Kích thước dữ liệu 
+  · Timeout: Thời gian chờ
+Ví dụ: 
+  HAL_SPI_TransmitReceive(&hspi1,txBuffer,rxBuffer,1,1000)
+
+
+   
+
+Các hàm ngắt:
+
+Ngắt khi truyền xong dữ liệu: Thay vì sử dụng hàm HAL_SPI_Transmit ta dùng HAL_SPI_Transmit_IT, sau khi hoàn tất truyền dữ liệu, chương trình sẽ nhảy vào hàm ngắt sau:
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+Tham số: 
+  · hspi: Con trỏ tới cấu trúc khởi tạo cho bộ SPI, ví dụ nếu cấu hình SPI1 thì là &hspi1.
+
+
+Tương tự ta cũng có ngắt khi hoàn thành nhận dữ liệu. Sử dụng hàm HAL_SPI_Receive_IT để nhận dữ liệu với ngắt. Sau khi nhận dữ liệu thì nhảy vào hàm ngắt sau:
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+Tham số: 
+  · hspi: Con trỏ tới cấu trúc khởi tạo cho bộ SPI, ví dụ nếu cấu hình SPI1 thì là &hspi1.
+
+
