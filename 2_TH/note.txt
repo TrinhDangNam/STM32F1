@@ -1,4 +1,9 @@
 ******************TIMER:
+*interrupt :
+
+timer nào--> APB nào--> config clock--> tần số bao nhiêu
+
+
 hal_tim_base_start_it ( &htim1/2/3, chanelnel1/2/3);
 Led sáng trong 5s  vs chu kì 5Hz, sau đó sáng trong chu kì 1Hz
 	__HAL_TIM_SET_PRESCALER(&htim1,499);
@@ -42,6 +47,8 @@ sConfigOC.Pulse = 200;
 
 
 ***********************ADC:
+Vgpio = 3.3*R2/(R1+R2)
+
 Cấu hình phần cứng:
 Data Alignment: Right Align Căn chỉnh data bên phải. Vì thanh ghi dữ liệu là 16 bit, chuyển đổi là 12bit, thanh ghi này sẽ xác định dữ liệu sẽ được căn lề bên trái hoặc phải
 Scan Mode:Disable. Tắt chế độ quét(Chỉ sử dụng được khi sử dụng nhiều kênh)
@@ -59,10 +66,11 @@ Một số hàm liên quan đến ADC:
 VD:
 uint32_t ADC_VAL;
 while(1)
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, 1000);
-    ADC_VAL = HAL_ADC_GetValue(&hadc1);
-    HAL_ADC_Stop(&hadc1);
+    HAL_ADC_Start(&hadc1); //ktra xem cấu hình bật/tắt
+    HAL_ADC_PollForConversion(&hadc1, 1000);  //kiểm tra thời gian chuyển đổi đáp ứng nhanh hay chậm
+    ADC_VAL = HAL_ADC_GetValue(&hadc1);  //đọc dữ liệu của bộ ADC///giá trị điẹn áp						(*3.3/4096))  ~0-3.3V and  0-4096
+										
+    HAL_ADC_Stop(&hadc1);  //dừng đọc
     HAL_Delay(100);
 
 ************UART:
